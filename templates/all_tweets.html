@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Homepage{% endblock %}
+
+{% block content %}
+<ul>
+    {% for tweet in tweets %}
+    <li> <b>{{tweet.author.name}}</b>
+        <br>
+        <p>{{tweet.text}}</p>
+    </li>
+    {% endfor %}
+</ul>
+
+{% endblock %}
