@@ -6,7 +6,7 @@ import twitter
 from forms import RegisterForm, TweetForm, LoginForm
 from secrets import *
 app = Flask(__name__)
-app.config['SECRET_KEY'] = "new kesef!"
+app.config['SECRET_KEY'] = "new kkjkesef!"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///sesametweet'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
@@ -36,7 +36,7 @@ def show_all_tweets():
         tweets.extend(current_user.author.tweets)
 
         tweets.sort(key=lambda t: t.date, reverse=True)
-        return render_template('all_tweets.html', tweets=tweets)
+        return render_template('all_tweets.html', tweets=tweets, user=current_user)
     else:
         return redirect('/register')
 
@@ -90,6 +90,14 @@ def login():
     return render_template("login.html", form=form)
 
 
+@app.route('/users/<int:user_id>')
+def show_profile_page(user_id):
+    if 'user_id' in session:
+        form = TweetForm()
+        current_user = User.query.get_or_404(user_id)
+        return render_template('user_profile.html', user=current_user, form=form)
+
+
 @app.route('/users/<int:user_id>/tweets/new', methods=['GET', 'POST'])
 def new_tweet(user_id):
     if 'user_id' in session:
@@ -104,6 +112,6 @@ def new_tweet(user_id):
                               author_id=current_user.author_id)
             db.session.add(new_tweet)
             db.session.commit()
-            return redirect('/')
+            return redirect(f'/users/{user_id}')
         else:
             return render_template('new_tweet.html', form=form)

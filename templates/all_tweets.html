@@ -2,7 +2,12 @@
 
 {% block title %}Homepage{% endblock %}
 
+
 {% block content %}
+
+<a href='/users/{{user.id}}'>My Profile</a>
+<a href='/logout'>Logout</a>
+
 <ul>
     {% for tweet in tweets %}
     <li> <b>{{tweet.author.name}}</b>

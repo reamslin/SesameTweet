@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}{{user.author.name}}{% endblock %}
+
+{% block content %}
+<h1>{{user.author.name}}</h1>
+<a href='/'>Back to homepage</a>
+<form action='/users/{{user.id}}/tweets/new' method='POST' class='bg-light p-4'>
+    {{form.hidden_tag() }}
+
+    {% for field in form
+        if field.widget.input_type != 'hidden' %}
+
+    <div class="form-group">
+        {{field.label}}
+        {{field(class_="form-control")}}
+        {% for error in field.errors %}
+        {{error}}
+        {% endfor %}
+    </div>
+    {% endfor %}
+
+
+    <button type="submit" class="btn btn-primary">Tweet!</button>
+</form>
+
+Tweets
+<ul>
+    {% for tweet in user.author.tweets %}
+    <li> {{tweet.text}} </li>
+    {% endfor %}
+</ul>
+{% endblock %}

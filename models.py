@@ -6,6 +6,8 @@ from flask_bcrypt import Bcrypt
 bcrypt = Bcrypt()
 db = SQLAlchemy()
 
+num_seed_tweets = 5
+
 
 def connect_db(app):
     """connect to database"""
@@ -30,12 +32,10 @@ class Character(db.Model):
     def get_tweets(self):
         """get unstored tweets"""
         tweetCriteria = got.manager.TweetCriteria().setUsername(self.twitter)\
-            .setMaxTweets(10)
+            .setMaxTweets(num_seed_tweets)
         tweets = got.manager.TweetManager.getTweets(tweetCriteria)
 
         for tweet in tweets:
-
-            # has tweet already been added? break
 
             new_tweet = Tweet(twitter_id=tweet.id, text=tweet.text,
                               date=tweet.date, author_id=self.author_id)
@@ -43,6 +43,21 @@ class Character(db.Model):
             db.session.add(new_tweet)
 
             db.session.commit()
+
+    @classmethod
+    def register(cls, name, twitter):
+        """class method for registering a new character to the system"""
+
+        new_author = Author(name=name)
+        db.session.add(new_author)
+        db.session.commit()
+        new_character = Character(twitter=twitter, author_id=new_author.id)
+        db.session.add(new_character)
+        db.session.commit()
+
+        new_character.get_tweets()
+
+        return new_character
 
 
 class Author(db.Model):
