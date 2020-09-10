@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Homepage{% endblock %}
+
+
+{% block content %}
+<div>
+    <div class='row justify-content-center mt-4'>
+        <div class='col-11 col-md-4 mb-2'>
+            <img class='container center img-fluid mb-1 col-10' src='/static/sign_tweet.png'>
+            <div class='row justify-content-center mb-3'>
+                <a class='btn-home text-center col-3' href='/mentions'>Mentions</a>
+                <a class='btn-home text-center col-3' href='/'>Home</a>
+                <a class='btn-home text-center col-3' href='/authors'>Characters</a>
+                <a class='btn-home text-center col-3' href='/hashtags'>Hashtags</a>
+            </div>
+            {% block middle %}
+            {% endblock %}
+        </div>
+        <div class='col-11 col-md-6'>
+            {% block left %}
+            {% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}

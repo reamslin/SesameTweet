@@ -4,7 +4,8 @@ from models import db, Tweet, Character, Author
 
 db.drop_all()
 db.create_all()
-
+sesame_street = Character.register(
+    name='Sesame Street', twitter='sesamestreet')
 elmo = Character.register(name='Elmo', twitter='elmo')
 
 big_bird = Character.register(name='Big Bird', twitter='bigbird')
@@ -22,3 +23,5 @@ abby = Character.register(name='Abby Cadabby', twitter='abbycadabbysst')
 count = Character.register(name='Count Von Count', twitter='countvoncount')
 
 cookie = Character.register(name='Cookie Monster', twitter='mecookiemonster')
+
+snuffy = Character.register(name='Snuffleupagus', twitter='mrsnuffleupagus')

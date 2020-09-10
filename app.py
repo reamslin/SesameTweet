@@ -1,10 +1,8 @@
 from flask import Flask, redirect, render_template, session, flash
 from flask_debugtoolbar import DebugToolbarExtension
-from models import Tweet, Character, User, Author, connect_db, db
+from models import Tweet, Character, User, Author, Hashtag, Mention, connect_db, db
 import requests
-import twitter
 from forms import RegisterForm, TweetForm, LoginForm
-from secrets import *
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "new kkjkesef!"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///sesametweet'
@@ -14,44 +12,60 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 debug = DebugToolbarExtension(app)
 connect_db(app)
 
-api = twitter.Api(
-    consumer_key=API_KEY,
-    consumer_secret=API_SECRET_KEY,
-    access_token_key=ACCESS_TOKEN,
-    access_token_secret=ACCESS_TOKEN_SECRET,
-    cache=None,
-    tweet_mode='extended')
-
 
 @app.route('/')
 def show_all_tweets():
+    tweets = Tweet.query.order_by(Tweet.date.desc()).all()
+    return render_template('all_tweets.html', tweets=tweets)
 
-    if 'user_id' in session:
-        current_user = User.query.get_or_404(session['user_id'])
-        sesame_characters = Character.query.all()
-        tweets = []
-        for character in sesame_characters:
-            tweets.extend(character.author.tweets)
 
-        tweets.extend(current_user.author.tweets)
+@app.route('/authors')
+def show_authors():
+    characters = Character.query.all()
+    return render_template('characters.html', characters=characters)
 
-        tweets.sort(key=lambda t: t.date, reverse=True)
-        return render_template('all_tweets.html', tweets=tweets, user=current_user)
-    else:
-        return redirect('/register')
+
+@app.route('/authors/<int:author_id>')
+def show_profile_page(author_id):
+    character = Character.query.get_or_404(author_id)
+    return render_template('character_profile.html', author=character.author)
+
+
+@app.route('/hashtags/<string:hashtag_text>')
+def show_hashtag_tweets(hashtag_text):
+    hashtag = Hashtag.query.get_or_404(hashtag_text)
+    return render_template('hashtag.html', hashtag=hashtag)
+
+
+@app.route('/hashtags')
+def show_hashtags():
+    hashtags = Hashtag.query.all()
+    return render_template('hashtags.html', hashtags=hashtags)
+
+
+@app.route('/mentions/<string:screen_name>')
+def show_mention_tweets(screen_name):
+    mention = Mention.query.get_or_404(screen_name)
+    return render_template('mention.html', mention=mention)
+
+
+@app.route('/mentions')
+def show_mentions():
+    mentions = Mention.query.all()
+    return render_template('mentions.html', mentions=mentions)
 
 
 @app.route('/logout')
 def logout():
-    if 'user_id' in session:
-        session.pop('user_id')
+    if 'author_id' in session:
+        session.pop('author_id')
 
     return redirect('/register')
 
 
 @app.route('/register', methods=['GET', 'POST'])
 def handle_register():
-    if 'user_id' in session:
+    if 'author_id' in session:
         return redirect('/')
     else:
         form = RegisterForm()
@@ -66,7 +80,7 @@ def handle_register():
             db.session.add(new_user)
             db.session.commit()
 
-            session['user_id'] = new_user.id
+            session['author_id'] = new_user.author_id
 
             return redirect('/')
         else:
@@ -83,35 +97,26 @@ def login():
 
         user = User.authenticate(username=username, password=password)
         if user:
-            session['user_id'] = user.id
+            session['author_id'] = user.author_id
             return redirect('/')
         else:
             form.username.errors = ["Invalid username/password"]
     return render_template("login.html", form=form)
 
 
-@app.route('/users/<int:user_id>')
-def show_profile_page(user_id):
-    if 'user_id' in session:
-        form = TweetForm()
-        current_user = User.query.get_or_404(user_id)
-        return render_template('user_profile.html', user=current_user, form=form)
+@app.route('/authors/<int:author_id>/tweets/new', methods=['GET', 'POST'])
+def new_tweet(author_id):
+    if 'author_id' in session:
 
-
-@app.route('/users/<int:user_id>/tweets/new', methods=['GET', 'POST'])
-def new_tweet(user_id):
-    if 'user_id' in session:
-
-        current_user = User.query.get_or_404(session['user_id'])
         form = TweetForm()
 
         if form.validate_on_submit():
             text = form.text.data
 
             new_tweet = Tweet(text=text,
-                              author_id=current_user.author_id)
+                              author_id=author_id)
             db.session.add(new_tweet)
             db.session.commit()
-            return redirect(f'/users/{user_id}')
+            return redirect(f'/authors/{author_id}')
         else:
             return render_template('new_tweet.html', form=form)

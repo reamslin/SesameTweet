@@ -1,0 +1,90 @@
+body {
+    background: url('/static/bricks.jpg') no-repeat center center fixed;
+    background-size: cover;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+}
+
+.feed_box {
+    font-family: 'Fjalla One', sans-serif;
+    background-color: #00af42; 
+    border-radius: 10px;
+    border-style: solid;
+    border-color: #fcd000;
+    border-width: 10px
+}
+.tweet-text {
+    color: white;
+    font-size: 20px
+}
+.text-my-own-color {
+    font-size: 15px;
+    color: white !important; 
+  }
+
+  .text-my-own-color {
+    font-size: 25px;
+    color: white !important; 
+  }
+
+a.btn-home {
+    padding: 5px;
+    background-color: white;
+    color: black !important;
+    font-family: 'Fjalla One', sans-serif;
+    border-style: solid;
+    border-radius: 5px;
+    border-color: black !important;
+    max-width: 100px;
+    display: inline-block;
+}
+
+.btn-home:hover {
+    background-color: rgb(100, 100, 100);
+    color: black;
+}
+
+  /* width */
+::-webkit-scrollbar {
+    width: 20px;
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+      border-radius: 5px;
+    background: #fcd20079;
+  }
+  
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+      border-style: solid;
+      border-width: 1px;
+      border-color: white;
+      border-radius: 5px;
+    background: #00af42;
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+  }
+
+a {
+    color: #fcd000 !important;
+}
+
+.media{
+    margin-left: auto;
+    margin-right: auto;
+    max-height: 70vh;
+    height:auto;
+    width:auto;
+}
+

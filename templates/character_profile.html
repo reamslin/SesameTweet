@@ -1,13 +1,13 @@
-{% extends 'homepage.html' %}
+{% extends 'homepage.html'%}
 
 {% block left %}
 
 <div style='height: 95vh; overflow-y: auto; overflow-x: hidden; margin-bottom: 10px; padding-right: 40px'>
 
-    {% for tweet in tweets %}
+    {% for tweet in author.tweets %}
     <div class='container p-2 mx-4 mb-4 feed_box'>
         <img style='margin-bottom: 10px; margin-right: 10px' src={{tweet.author.image}}>
-        <b><a class='text-my-own-color' href=' /authors/{{tweet.author_id}}'>{{tweet.author.name.upper()}}</a></b>
+        <b><a class='text-my-own-color' href=' /authors/{{tweet.author_id}}'>{{tweet.author.name}}</a></b>
         <div class='tweet-text'>{{tweet.text|safe}}
         </div>
 
@@ -29,10 +29,11 @@
 {% endblock %}
 
 {% block middle %}
-<div class='container feed_box p-2 mb-4 text-center'>
-    <p class='text-my-own-color'>Home</p>
-    <div class='center bg-dark col-12 p-2'>
-        <img class='img-fluid' src='/static/word.jpeg'>
-    </div>
+
+<div class='container feed_box p-2 mb-4'>
+    <img src={{author.banner}} class='img-fluid mb-4'>
+    <img style='margin-bottom: 10px; margin-right: 10px' src={{author.image}}>
+    <b class='text-my-own-color'>{{author.name}}</b>
+    <p class='tweet-text'>{{author.description}}</p>
 </div>
 {% endblock %}
