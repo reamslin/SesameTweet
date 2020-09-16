@@ -5,7 +5,7 @@ import requests
 from apscheduler.schedulers.background import BackgroundScheduler
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = "new kkjkesef!"
+app.config['SECRET_KEY'] = "sesametweetsecret"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///sesametweet'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
