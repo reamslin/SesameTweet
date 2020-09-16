@@ -1,15 +1,16 @@
-{% extends 'homepage.html'%}
+{% extends 'homepage.html' %}
 
 {% block left %}
 
-<div style='height: 95vh; overflow-y: auto; overflow-x: hidden; margin-bottom: 10px; padding-right: 40px'>
+<div style='height: 95vh; overflow-y: auto; overflow-x: hidden; margin-bottom: 10px; padding-right: 40px' id='feed'
+    data-page=1 data-api='/tweets/page/'>
 
-    {% for tweet in mention.tweets %}
-    <div class='container p-2 mx-4 mb-4 feed_box'>
+    {% for tweet in tweets %}
+    <div class='container p-2 mx-4 mb-4 feed_box' data-page=1>
         <img style='margin-bottom: 10px; margin-right: 10px' src={{tweet.character.image}}>
-        <b><a class='text-my-own-color' href=' /characters/{{tweet.character_id}}'>{{tweet.character.name}}</a></b>
-        <div class='float-right'>
-            <a class='float-right'
+        <b><a class='text-my-own-color'
+                href=' /characters/{{tweet.character_id}}'>{{tweet.character.name.upper()}}</a></b>
+        <div class='float-right'><a class='float-right'
                 href='https://www.twitter.com/{{tweet.character.screen_name}}/status/{{tweet.twitter_id}}'>
                 <i class='fa fa-twitter-square fa-2x'></i></a>
             <div class='mr-2 tweet-text float-right'>{{tweet.date.month}} - {{tweet.date.day}} - {{tweet.date.year}}
@@ -34,20 +35,18 @@
         {% endfor %}
     </div>
     {% endfor %}
+    <div class='container'>
+        <button class='btn-home center load'>View More</button>
+    </div>
 </div>
 
 {% endblock %}
 
 {% block middle %}
-
-<div class='container feed_box p-2 mb-4'>
-    <img src={{mention.banner}} class='img-fluid mb-4'>
-    <img style='margin-bottom: 10px; margin-right: 10px' src={{mention.image}}>
-    <b class='text-my-own-color'>{{mention.name}}</b>
-    <small class='text-yellow'>@{{mention.screen_name}}</small>
-    <a class='float-right' href='https://www.twitter.com/{{mention.screen_name}}'>
-        <i class='fa fa-twitter-square fa-2x'></i></a>
-    <p class='tweet-text'>{{mention.description}}</p>
+<div class='container feed_box p-2 mb-4 text-center'>
+    <p class='text-my-own-color'>Home</p>
+    <div class='center bg-dark col-12 p-2'>
+        <img class='img-fluid' src='/static/word.jpeg'>
+    </div>
 </div>
-
 {% endblock %}

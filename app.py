@@ -1,34 +1,80 @@
-from flask import Flask, redirect, render_template, session, flash
+from flask import Flask, redirect, render_template, session, flash, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
-from models import Tweet, Character, User, Author, Hashtag, Mention, connect_db, db
+from models import Tweet, Character, Hashtag, Mention, connect_db, db
 import requests
-from forms import RegisterForm, TweetForm, LoginForm
+from apscheduler.schedulers.background import BackgroundScheduler
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "new kkjkesef!"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///sesametweet'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_ECHO'] = True
+app.config['SQLALCHEMY_ECHO'] = False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 debug = DebugToolbarExtension(app)
 connect_db(app)
 
+num_tweets_to_display = 10
+minutes_to_update = 15
+
+
+def check_for_updates():
+    characters = Character.query.all()
+    for character in characters:
+        character.update()
+
+
+sched = BackgroundScheduler(daemon=True)
+sched.add_job(check_for_updates, 'interval', minutes=minutes_to_update)
+sched.start()
+
+if __name__ == "__main__":
+    app.run()
+
 
 @app.route('/')
 def show_all_tweets():
-    tweets = Tweet.query.order_by(Tweet.date.desc()).all()
-    return render_template('all_tweets.html', tweets=tweets)
+    tweets = Tweet.query.order_by(
+        Tweet.date.desc()).limit(num_tweets_to_display)
+    return render_template('tweets.html', tweets=tweets)
 
 
-@app.route('/authors')
-def show_authors():
+@app.route('/tweets/page/<int:page_number>')
+def get_next_page_tweets(page_number):
+    offset_query = page_number * num_tweets_to_display
+
+    tweets = [tweet.serialize() for tweet in Tweet.query.order_by(Tweet.date.desc()).offset(
+        offset_query).limit(num_tweets_to_display + 1)]
+
+    if len(tweets) == num_tweets_to_display + 1:
+        return jsonify(tweets=tweets[:num_tweets_to_display], page=page_number + 1, end=False)
+    else:
+        return jsonify(tweets=tweets, page=page_number + 1, end=True)
+
+
+@app.route('/characters')
+def show_characters():
     characters = Character.query.all()
     return render_template('characters.html', characters=characters)
 
 
-@app.route('/authors/<int:author_id>')
-def show_profile_page(author_id):
-    character = Character.query.get_or_404(author_id)
-    return render_template('character_profile.html', author=character.author)
+@app.route('/characters/<int:character_id>')
+def show_profile_page(character_id):
+    character = Character.query.get_or_404(character_id)
+    tweets = Tweet.query.filter_by(
+        character_id=character_id).order_by(Tweet.date.desc()).limit(num_tweets_to_display)
+    return render_template('character_profile.html', character=character, tweets=tweets)
+
+
+@app.route('/characters/<int:character_id>/page/<int:page_number>')
+def get_next_page_character(character_id, page_number):
+    offset_query = page_number * num_tweets_to_display
+    tweets = [tweet.serialize() for tweet in Tweet.query.filter_by(
+        character_id=character_id).order_by(Tweet.date.desc()).offset(offset_query).limit(num_tweets_to_display + 1)]
+
+    if len(tweets) == num_tweets_to_display + 1:
+        return jsonify(tweets=tweets[:num_tweets_to_display], page=page_number + 1, end=False)
+    else:
+        return jsonify(tweets=tweets, page=page_number + 1, end=True)
 
 
 @app.route('/hashtags/<string:hashtag_text>')
@@ -39,7 +85,7 @@ def show_hashtag_tweets(hashtag_text):
 
 @app.route('/hashtags')
 def show_hashtags():
-    hashtags = Hashtag.query.all()
+    hashtags = Hashtag.query.order_by(Hashtag.text).all()
     return render_template('hashtags.html', hashtags=hashtags)
 
 
@@ -51,72 +97,5 @@ def show_mention_tweets(screen_name):
 
 @app.route('/mentions')
 def show_mentions():
-    mentions = Mention.query.all()
+    mentions = Mention.query.order_by(Mention.followers_count.desc()).all()
     return render_template('mentions.html', mentions=mentions)
-
-
-@app.route('/logout')
-def logout():
-    if 'author_id' in session:
-        session.pop('author_id')
-
-    return redirect('/register')
-
-
-@app.route('/register', methods=['GET', 'POST'])
-def handle_register():
-    if 'author_id' in session:
-        return redirect('/')
-    else:
-        form = RegisterForm()
-
-        if form.validate_on_submit():
-            username = form.username.data
-            password = form.password.data
-            name = form.name.data
-
-            new_user = User.register(
-                username=username, password=password, name=name)
-            db.session.add(new_user)
-            db.session.commit()
-
-            session['author_id'] = new_user.author_id
-
-            return redirect('/')
-        else:
-            return render_template('register.html', form=form)
-
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    form = LoginForm()
-
-    if form.validate_on_submit():
-        username = form.username.data
-        password = form.password.data
-
-        user = User.authenticate(username=username, password=password)
-        if user:
-            session['author_id'] = user.author_id
-            return redirect('/')
-        else:
-            form.username.errors = ["Invalid username/password"]
-    return render_template("login.html", form=form)
-
-
-@app.route('/authors/<int:author_id>/tweets/new', methods=['GET', 'POST'])
-def new_tweet(author_id):
-    if 'author_id' in session:
-
-        form = TweetForm()
-
-        if form.validate_on_submit():
-            text = form.text.data
-
-            new_tweet = Tweet(text=text,
-                              author_id=author_id)
-            db.session.add(new_tweet)
-            db.session.commit()
-            return redirect(f'/authors/{author_id}')
-        else:
-            return render_template('new_tweet.html', form=form)

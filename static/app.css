@@ -28,7 +28,7 @@ body {
     color: white !important; 
   }
 
-a.btn-home {
+a.btn-home, button.btn-home {
     padding: 5px;
     background-color: white;
     color: black !important;
@@ -78,6 +78,11 @@ a.btn-home {
 
 a {
     color: #fcd000 !important;
+}
+
+.text-yellow {
+  color: #fcd000 !important;
+  font-size: 20px;
 }
 
 .media{
