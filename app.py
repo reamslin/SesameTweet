@@ -3,9 +3,10 @@ from flask_debugtoolbar import DebugToolbarExtension
 from models import Tweet, Character, Hashtag, Mention, connect_db, db
 import requests
 from apscheduler.schedulers.background import BackgroundScheduler
+import os
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = "sesametweetsecret"
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'shh')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///sesametweet'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
