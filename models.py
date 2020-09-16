@@ -5,6 +5,7 @@ import twitter
 from secrets import *
 import re
 import GetOldTweets3 as got
+import os
 
 bcrypt = Bcrypt()
 db = SQLAlchemy()
