@@ -11,9 +11,9 @@ bcrypt = Bcrypt()
 db = SQLAlchemy()
 
 api = twitter.Api(
-    consumer_key=os.environ.get('API_KEY')
-    consumer_secret=os.environ.get('API_SECRET_KEY')
-    access_token_key=os.environ.get('ACCESS_TOKEN')
+    consumer_key=os.environ.get('API_KEY'),
+    consumer_secret=os.environ.get('API_SECRET_KEY'),
+    access_token_key=os.environ.get('ACCESS_TOKEN'),
     access_token_secret=os.environ.get('ACCESS_TOKEN_SECRET'),
     cache=None,
     tweet_mode='extended',
