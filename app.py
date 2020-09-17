@@ -55,7 +55,7 @@ def get_next_page_tweets(page_number):
 
 @app.route('/characters')
 def show_characters():
-    characters = Character.query.all()
+    characters = Character.query.order_by(Character.name).all()
     return render_template('characters.html', characters=characters)
 
 
