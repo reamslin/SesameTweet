@@ -80,12 +80,12 @@ class Character(db.Model):
         self.get_user_data()
 
         new_tweets = api.GetUserTimeline(
-            screen_name=self.screen_name, since_id=self.latest_tweet, trim_user=True, exclude_replies=True, include_rts=False)
+            screen_name=self.screen_name, since_id=self.latest_tweet + 1, trim_user=True, exclude_replies=True, include_rts=False)
 
         for tweet in new_tweets:
             Tweet.parse(tweet, self.id)
-        self.latest_tweet = Tweet.query.filter_by(
-            character_id=self.id).order_by(Tweet.date.desc()).first()
+        if new_tweets:
+            self.latest_tweet = new_tweets[0].id
 
     @classmethod
     def register(cls, name, screen_name):
