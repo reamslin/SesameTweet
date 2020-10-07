@@ -10,11 +10,18 @@ import os
 bcrypt = Bcrypt()
 db = SQLAlchemy()
 
+API_KEY = 'EfBCy3WPyR7jsyMWm3L6FeQsR'
+API_SECRET_KEY = 'JY87tS5onFlJQFUgH3F4Y8OgKzNEai5O5lRDpzRGh4sVxt6SHb'
+BEARER_TOKEN = 'AAAAAAAAAAAAAAAAAAAAAPkZHQEAAAAAI9SzO3yGFm7HBE6FSAn%2BQyTteNI%3DeXyFzUjkNgySihXypu4kVejQhJZHtil1zu3QM9qRt3xl0lwiIX'
+ACCESS_TOKEN = '1300159566030737409-h6GypRfvRGW7iT2oG6Ksp9DhhYs8oA'
+ACCESS_TOKEN_SECRET = 'PE2jheUCyIGJahVTBCnSsoeit9HagTkjGE246cFMMrS5H'
+
 api = twitter.Api(
-    consumer_key=os.environ.get('API_KEY'),
-    consumer_secret=os.environ.get('API_SECRET_KEY'),
-    access_token_key=os.environ.get('ACCESS_TOKEN'),
-    access_token_secret=os.environ.get('ACCESS_TOKEN_SECRET'),
+    consumer_key=os.environ.get('API_KEY', API_KEY),
+    consumer_secret=os.environ.get('API_SECRET_KEY', API_SECRET_KEY),
+    access_token_key=os.environ.get('ACCESS_TOKEN', ACCESS_TOKEN),
+    access_token_secret=os.environ.get(
+        'ACCESS_TOKEN_SECRET', ACCESS_TOKEN_SECRET),
     cache=None,
     tweet_mode='extended',
     sleep_on_rate_limit=True)
@@ -53,11 +60,8 @@ class Character(db.Model):
     def get_timeline(self):
         """get tweets from twitter API"""
 
-        tweetCriteria = got.manager.TweetCriteria().setUsername(
-            self.screen_name)
-        tweets_got = got.manager.TweetManager.getTweets(tweetCriteria)
-        tweet_ids = [tweet.id for tweet in tweets_got]
-        tweets = api.GetStatuses(status_ids=tweet_ids, trim_user=True)
+        tweets = api.GetUserTimeline(
+            screen_name=self.screen_name, include_rts=False, exclude_replies=True)
         for tweet in tweets:
             Tweet.parse(tweet, self.id)
 
@@ -80,7 +84,8 @@ class Character(db.Model):
 
         for tweet in new_tweets:
             Tweet.parse(tweet, self.id)
-            self.latest_tweet = tweet.id
+        self.latest_tweet = Tweet.query.filter_by(
+            character_id=self.id).order_by(Tweet.date.desc()).first()
 
     @classmethod
     def register(cls, name, screen_name):
