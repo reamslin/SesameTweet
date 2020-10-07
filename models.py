@@ -61,7 +61,7 @@ class Character(db.Model):
         """get tweets from twitter API"""
 
         tweets = api.GetUserTimeline(
-            screen_name=self.screen_name, include_rts=False, exclude_replies=True)
+            screen_name=self.screen_name, include_rts=False, exclude_replies=True, count=200)
         for tweet in tweets:
             Tweet.parse(tweet, self.id)
 
